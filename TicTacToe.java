@@ -8,7 +8,6 @@ public class TicTacToe {
     private enum Moves { X, O, EMPTY };
     private Moves[][] board = new Moves[3][3];
     private final List<String> alphaMap = new ArrayList <>(Arrays.asList("A","B","C","D","E","F","G","H","I"));
-    private String playerMove = "";
     private Moves currentPlayer = Moves.X;
     Scanner input = new Scanner(System.in);
 
@@ -18,7 +17,7 @@ public class TicTacToe {
             Arrays.fill(board[row],Moves.EMPTY);
         }
         ShowBoard(board);
-        TakeTurn();
+        NextTurn();
     }
 
     private void ShowBoard(Moves[][] board){
@@ -38,35 +37,71 @@ public class TicTacToe {
         }
     }
 
-    private void UpdateBoard(String moveBox, Moves player ){
-        int [] boardPosition = alphaToBoardPosition(moveBox);
+    private void UpdateBoard(int[] boardPosition, Moves player ){
         board[boardPosition[0]][boardPosition[1]] = player;
+        ShowBoard(board);
     }
 
-    private void TakeTurn(){
-        currentPlayer = currentPlayer == Moves.X ? Moves.O : Moves.X;
+    private void HelpInvalidInput(String playerChoice){
         System.out.printf("%n Player ");
-        System.out.println(currentPlayer);
-        System.out.println(" enter letter in the box where you'll make your move: ");
-        playerMove = input.next();
-        if(ValidateMove(playerMove)){
-            UpdateBoard(playerMove, currentPlayer);
-            ShowBoard(board);
-            TakeTurn();
+        System.out.print(currentPlayer);
+        System.out.printf("%n %s isn't an open box on the board. %n", playerChoice);
+        ShowBoard(board);
+        System.out.printf("%n Enter a letter A-I that is still open: ");
+        MakeMove(input.next());
+    }
+
+    private void NextTurn(){
+        if (!isGameOver()){
+            currentPlayer = currentPlayer == Moves.X ? Moves.O : Moves.X;
+            System.out.printf("%n Player ");
+            System.out.println(currentPlayer);
+            System.out.println(" enter letter in the box where you'll make your move: ");
+            MakeMove(input.next());
+            return;
+        }
+        GameOver();
+    }
+    private void MakeMove(String playerChoice){
+        playerChoice = playerChoice.toUpperCase();
+        if(isValidBox(playerChoice)){
+            int[] boardPosition = alphaToBoardPosition(playerChoice);
+            if (isBoxEmpty(boardPosition)){
+                UpdateBoard(boardPosition, currentPlayer);
+                NextTurn();
+            } else {
+                HelpInvalidInput(playerChoice);
+            }
+        } else {
+            HelpInvalidInput(playerChoice);
         }
     }
 
     private int[] alphaToBoardPosition(String alpha){
         int boxInt = alphaMap.indexOf(alpha);
-        int [] boardPosition = { boxInt / 3, boxInt % 3 };
+//        System.out.printf("%n alpha %s ", alpha);
+//        System.out.printf("%n box %d ", boxInt);
+//        System.out.printf("%n row %d ", boxInt / 3);
+//        System.out.printf("%n cell %d ", boxInt % 3);
+        int[] boardPosition = { boxInt / 3, boxInt % 3 };
         return boardPosition;
     }
 
-    private String boardPositionToAlpha(int[] boardPosition){
-        return "A";
+    private boolean isValidBox(String playerChoice){
+        return alphaMap.contains(playerChoice);
     }
 
-    private boolean ValidateMove(String moveBox){
-        return alphaMap.contains(moveBox.toUpperCase());
+    private boolean isBoxEmpty(int[] boardPosition){
+        return board[boardPosition[0]][boardPosition[1]] == Moves.EMPTY;
+    }
+
+    private boolean isGameOver(){
+        return false;
+    }
+
+    private void GameOver(){
+        System.out.printf("%n Congratulations Player ");
+        System.out.print(currentPlayer);
+        System.out.printf("! You win. %n");
     }
 }
