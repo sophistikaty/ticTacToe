@@ -58,11 +58,7 @@ public class TicTacToe {
 
     private int[] alphaToBoardPosition(String alpha){
         int boxInt = alphaMap.indexOf(alpha);
-        int rowInt = boxInt / 3;
-        System.out.println(rowInt);
-
-        int cellInt = boxInt % 3;
-        int [] boardPosition = {rowInt,cellInt};
+        int [] boardPosition = { boxInt / 3, boxInt % 3 };
         return boardPosition;
     }
 
@@ -71,7 +67,6 @@ public class TicTacToe {
     }
 
     private boolean ValidateMove(String moveBox){
-        System.out.println(alphaMap.contains(moveBox.toUpperCase()));
         return alphaMap.contains(moveBox.toUpperCase());
     }
 }
