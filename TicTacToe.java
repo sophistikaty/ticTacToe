@@ -6,9 +6,21 @@ import java.util.List;
 public class TicTacToe {
 
     private enum Moves { X, O, EMPTY };
-    private Moves[][] board = new Moves[3][3];
+    private final int boardSize = 3;
+    private int[][][] winScenarios = {
+                        {{0,0}, {0,1}, {0,2}},
+                        {{1,0}, {1,1}, {1,2}},
+                        {{2,0}, {2,1}, {2,2}},
+                        {{0,0}, {1,0}, {2,0}},
+                        {{1,0}, {1,1}, {1,2}},
+                        {{2,0}, {2,1}, {2,2}},
+                        {{0,0}, {1,1}, {2,2}},
+                        {{0,2}, {1,1}, {2,0}}
+                        };
+    private Moves[][] board = new Moves[boardSize][boardSize];
     private final List<String> alphaMap = new ArrayList <>(Arrays.asList("A","B","C","D","E","F","G","H","I"));
     private Moves currentPlayer = Moves.X;
+    private Moves winner = Moves.EMPTY;
     Scanner input = new Scanner(System.in);
 
     TicTacToe (){
@@ -62,28 +74,26 @@ public class TicTacToe {
         }
         GameOver();
     }
+
     private void MakeMove(String playerChoice){
         playerChoice = playerChoice.toUpperCase();
-        if(isValidBox(playerChoice)){
-            int[] boardPosition = alphaToBoardPosition(playerChoice);
-            if (isBoxEmpty(boardPosition)){
-                UpdateBoard(boardPosition, currentPlayer);
+        if( isValidBox(playerChoice) ){
+            // determine board position once input is validated
+            int[] boardPosition = alphaToBoardPosition( playerChoice );
+            if ( isBoxEmpty(boardPosition) ){
+                UpdateBoard( boardPosition, currentPlayer );
                 NextTurn();
             } else {
-                HelpInvalidInput(playerChoice);
+                HelpInvalidInput( playerChoice );
             }
         } else {
-            HelpInvalidInput(playerChoice);
+            HelpInvalidInput( playerChoice );
         }
     }
 
     private int[] alphaToBoardPosition(String alpha){
         int boxInt = alphaMap.indexOf(alpha);
-//        System.out.printf("%n alpha %s ", alpha);
-//        System.out.printf("%n box %d ", boxInt);
-//        System.out.printf("%n row %d ", boxInt / 3);
-//        System.out.printf("%n cell %d ", boxInt % 3);
-        int[] boardPosition = { boxInt / 3, boxInt % 3 };
+        int[] boardPosition = { boxInt / boardSize, boxInt % boardSize };
         return boardPosition;
     }
 
@@ -96,12 +106,40 @@ public class TicTacToe {
     }
 
     private boolean isGameOver(){
-        return false;
+       int emptyCount = 0;
+        // for winScenario in 8 possible scenarios (complete row, column or diagonal)
+        for (int i = 0; i< winScenarios.length; i++){
+            int xCount = 0;
+            int oCount = 0;
+
+            for( int j = 0; j< winScenarios[i].length; j++){
+                int[] boardPosition = winScenarios[i][j];
+                Moves currentPlayer = board[boardPosition[0]][boardPosition[1]];
+                emptyCount = currentPlayer == Moves.EMPTY ? emptyCount+1 : emptyCount;
+                xCount = currentPlayer == Moves.X ? xCount+1 : xCount;
+                oCount = currentPlayer == Moves.O ? oCount+1 : oCount;
+
+                // set winner & end game if relevant
+                if (xCount == 3){
+                    winner = Moves.X;
+                    return true;
+                }
+                if (oCount == 3){
+                    winner = Moves.O;
+                    return true;
+                }
+            }
+        }
+        return emptyCount == 0;
     }
 
     private void GameOver(){
-        System.out.printf("%n Congratulations Player ");
-        System.out.print(currentPlayer);
-        System.out.printf("! You win. %n");
+        if (winner != Moves.EMPTY){
+            System.out.printf("%n Congratulations Player ");
+            System.out.print(currentPlayer);
+            System.out.printf("! You win. %n");
+            return;
+        }
+        System.out.printf("%n Cat's game! Better luck next time %n");
     }
 }
