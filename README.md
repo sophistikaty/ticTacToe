@@ -1,4 +1,8 @@
 # ticTacToe
+To Play:
+`$ javac *.java`
+`$ java PlayGame`
+Enjoy!
 
 Challenge:
 Create a class TicTacToe that will enable you to write a program to play Tic-Tac-Toe.
